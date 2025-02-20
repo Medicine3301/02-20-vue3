@@ -1,52 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
-    />
-    <title>TODO List</title>
-  </head>
-  <body>
-    <div id="app">
-      <div class="relative w-[600px]">
-        <div class="todo-input">
-          <input type="text" name="todo" maxlength="30" placeholder="請輸入" />
-          <button type="button">新增</button><button type="button">儲存</button
-          ><button type="button" class="!bg-transparent">取消</button>
-        </div>
 
-        <div class="absolute w-full">
-          <ul class="todo-list">
-            <li v-for="i in 5" :key="i" class="todo-item">
-              <div>
-                <span class="mr-1 font-mono">{{i}}.</span>
-                項目 {{i}}
-              </div>
-              <div class="todo-item-actions material-symbols-outlined">
-                <button type="button">edit</button
-                ><button class="text-green-800" type="button">check</button>
-              </div>
-            </li>
-          </ul>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <title>TODO List</title>
+</head>
+
+<body>
+  <div id="app">
+    <div class="relative w-[600px]">
+      <div class="todo-input">
+        <input type="text" name="todo" maxlength="30" placeholder="請輸入" v-model="inputitem" />
+        <button type="button" @click="additem">新增</button><button type="button" @click="saveItem" v-if="edit">儲存</button>
+        
+        <button
+          type="button" class="!bg-transparent" @click="reset" v-if="inputitem">取消
+        </button>
+
+      </div>
+
+      <div class="absolute w-full">
+        <ul class="todo-list">
+          <li v-for="(items, id) in item" :key="items" class="todo-item">
+            <div>
+              <span class="mr-1 font-mono">{{ id + 1 }}.</span>
+              {{ items }}
+            </div>
+            <div class="todo-item-actions material-symbols-outlined">
+              <button type="button" @click="editItem(id)">edit</button><button class="text-green-800" type="button"
+                @click="deleteItem(id)">check</button>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
-  </body>
+  </div>
+</body>
 
-  <script type="module">
-    import {
-      createApp,
-      ref,
-    } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+<script type="module">
+  import {
+    createApp,
+    ref,
+  } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
-    createApp({
-      setup() {},
-    }).mount("#app");
-  </script>
+  createApp({
+    setup() {
+      //放編輯任務的編號
+      const editnum =ref("");
+      //input 框
+      const inputitem = ref("");
+
+      //存放任務區
+      const item = ref([1, 2, 3, 4, 5]);
+
+      const edit = ref(false);
+      //新增按鈕
+      const additem = () => {
+        if (inputitem.value == "") {
+          alert("請輸入任務");
+          return;
+        }
+        else if (item.value.length >= 5) {
+          alert("任務數量已達上限");
+          return;
+        }
+        item.value.push(inputitem.value);
+        inputitem.value = "";
+      }
+      //取消按鈕
+      const reset = () => {
+        inputitem.value = "";
+        edit.value=false;
+        editnum.value="";
+      }
+      //刪除按鈕
+      const deleteItem = (id) => {
+        if (confirm("是否刪除任務")) {
+          alert("已刪除任務");
+          item.value.splice(id, 1);
+        } else {
+          alert("已取消刪除");
+        }
+      }
+      const editItem=(id)=>{
+        editnum.value=id;
+        inputitem.value=item.value[editnum.value];
+        edit.value=true;
+        
+      }
+      const saveItem=(id)=>{
+        item.value[editnum.value]=inputitem.value;
+        inputitem.value="";
+        editnum.value="";
+        edit.value=false;
+      }
+      return {
+        inputitem, item, reset, additem,deleteItem,editItem,saveItem,edit
+      };
+    },
+  }).mount("#app");
+</script>
+
 </html>
 
 <style type="text/tailwindcss">
